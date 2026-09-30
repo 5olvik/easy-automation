@@ -207,6 +207,7 @@
     </div>
 
 <div class="surface-card"><h3 data-i18n="help_overview_title">Overview and room status</h3><p class="hint" data-i18n="help_overview_body">Overview groups your automations by room. Active means the automation is enabled; it does not mean the lights are currently on. Paused automations resume when the displayed time expires. Open a room entry to edit it. Automations controlling devices in several rooms appear under Multiple rooms. Find the full activity log under Events.</p></div>
+<div class="surface-card"><h3 data-i18n="night_idle_help_title">Night light after movement stops</h3><p class="hint" data-i18n="night_idle_help_body">In Motion → Lights, enable Dim instead of switching off after sunset. Set the brightness (1–100%, default 1%) and optionally a later switch-off, for example 3 hours. The usual hold time runs first, then night lighting starts. New movement returns the lights to their motion brightness and resets the countdown. At sunrise the lights switch off. Daytime behaviour follows the normal switch-off settings. Timers continue through app restarts. Dimmable lights are required.</p></div>
     <!-- Getting started -->
     <div style="background:var(--ea-surface);border:1px solid var(--ea-border);border-radius:14px;padding:20px 22px;margin-bottom:14px">
       <div style="font-size:13px;font-weight:700;color:var(--ea-text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px" data-i18n="help_gs_hdr">Getting started</div>
@@ -226,7 +227,7 @@
         <span style="font-size:26px;line-height:1;flex-shrink:0">🏃</span>
         <div>
           <div style="font-weight:700;font-size:14px;color:var(--ea-text)" data-i18n="help_t1_name">Motion → Lights</div>
-          <div style="font-size:13px;color:var(--ea-text);margin-top:2px;line-height:1.5" data-i18n-html="help_t1_desc">Turns lights on when a motion sensor detects movement, and optionally off again after motion stops. You can set a hold time (e.g. keep lights on for 5 minutes after the last movement) and a fade-in / fade-out duration.</div>
+          <div style="font-size:13px;color:var(--ea-text);margin-top:2px;line-height:1.5" data-i18n-html="help_t1_desc">Turns lights on when a motion sensor detects movement. After movement stops, use a hold time and optionally fade out. Enable night lighting to dim to an adjustable level after sunset instead of switching off, with an optional later switch-off.</div>
         </div>
       </div>
 
@@ -835,6 +836,20 @@ var I18N = {
   }
 };
 Object.assign(I18N.en, {
+  night_idle_enable: 'Dim instead of switching off after sunset',
+  night_idle_level: 'Night-light brightness',
+  night_idle_later_off: 'Switch night lights off after a chosen time',
+  night_idle_hours: 'Hours with night light before switching off',
+  night_idle_hint: 'Between sunset and sunrise, lights dim to this level after the normal hold time. New movement restores the motion brightness and cancels the countdown. The optional switch-off delay starts when night lighting begins; lights switch off at sunrise at the latest. Sun times use the location configured in Homey.',
+  night_idle_error_level: 'Choose a night-light brightness between 1 and 100%.',
+  night_idle_error_hours: 'Choose between 0.25 and 24 hours before switching off.',
+  night_idle_status: 'Night light · {0}% · off in {1} min',
+  night_idle_hold: 'Dims/switches off in ',
+  night_idle_status_until_sunrise: 'Night light · {0}% · until sunrise',
+  night_idle_help_title: 'Night light after movement stops',
+  night_idle_help_body: 'In Motion → Lights, enable Dim instead of switching off after sunset. Set the brightness (1–100%, default 1%) and optionally a later switch-off, for example 3 hours. The usual hold time runs first, then night lighting starts. New movement returns the lights to their motion brightness and resets the countdown. At sunrise the lights switch off. Daytime behaviour follows the normal switch-off settings. Timers continue through app restarts. Dimmable lights are required.',
+  'Change lights when motion stops': 'Change lights when motion stops',
+  help_t1_desc: 'Turns lights on when a motion sensor detects movement. After movement stops, use a hold time and optionally fade out. Enable night lighting to dim to an adjustable level after sunset instead of switching off, with an optional later switch-off.',
   "tab_overview": "Overview",
   "tab_auto": "Automations",
   "tab_devices": "Devices",
@@ -888,6 +903,20 @@ Object.assign(I18N.en, {
   "a11y_close": "Close"
 });
 Object.assign(I18N.no, {
+  night_idle_enable: 'Demp i stedet for å slukke etter solnedgang',
+  night_idle_level: 'Lysstyrke for nattlys',
+  night_idle_later_off: 'Slukk nattlys etter en valgt tid',
+  night_idle_hours: 'Timer med nattlys før slukking',
+  night_idle_hint: 'Mellom solnedgang og soloppgang dimmes lysene til dette nivået etter vanlig holdtid. Ny bevegelse gir vanlig lysstyrke igjen og avbryter nedtellingen. Valgfri slukktid regnes fra nattlyset starter; lysene slukkes senest ved soloppgang. Soltidene bruker posisjonen som er satt i Homey.',
+  night_idle_error_level: 'Velg en lysstyrke for nattlys mellom 1 og 100%.',
+  night_idle_error_hours: 'Velg mellom 0,25 og 24 timer før slukking.',
+  night_idle_status: 'Nattlys · {0}% · slukker om {1} min',
+  night_idle_hold: 'Demper/slukker om ',
+  night_idle_status_until_sunrise: 'Nattlys · {0}% · til soloppgang',
+  night_idle_help_title: 'Nattlys når bevegelsen stopper',
+  night_idle_help_body: 'Under Bevegelse → Lys kan du aktivere Demp i stedet for å slukke etter solnedgang. Velg lysstyrke (1–100 %, standard 1 %) og eventuelt slukking senere, for eksempel etter 3 timer. Vanlig holdtid går først, deretter starter nattlyset. Ny bevegelse gir vanlig lysstyrke igjen og nullstiller nedtellingen. Ved soloppgang slukkes lysene. På dagtid brukes vanlig slukking. Nedtellingen fortsetter gjennom omstart av appen. Lysene må støtte dimming.',
+  'Change lights when motion stops': 'Slukk eller demp når bevegelsen stopper',
+  help_t1_desc: 'Slår på lys når en bevegelsessensor oppdager bevegelse. Etter at bevegelsen stopper, kan du bruke holdtid og eventuell fading. Aktiver nattlys for å dimme til et justerbart nivå etter solnedgang i stedet for å slukke, med valgfri slukking senere.',
   "tab_overview": "Oversikt",
   "tab_auto": "Automasjoner",
   "tab_devices": "Enheter",
@@ -976,7 +1005,7 @@ function setStatus(msg, t) {
 }
 
 // ── State ──────────────────────────────────────────────────────────────────────
-var State = { devices: [], automations: [], holdStatus: {}, overrides: {}, pinnedDevices: [], logs: [], loaded: false, syncError: false };
+var State = { devices: [], automations: [], holdStatus: {}, overrides: {}, nightIdle: {}, pinnedDevices: [], logs: [], loaded: false, syncError: false };
 
 // ── API (settings-based, works on permanent install) ──────────────────────────
 var API = {
@@ -1028,7 +1057,7 @@ var PATSettings = {
 var App = {
   init: async function() {
     try {
-      var res = await Promise.all([API.getDevices(), API.getAutomations(), window._hGet('_pinnedDevices'), window._hGet('_holdStatus'), window._hGet('_overrides'), window._hGet('_appLog')]);
+      var res = await Promise.all([API.getDevices(), API.getAutomations(), window._hGet('_pinnedDevices'), window._hGet('_holdStatus'), window._hGet('_overrides'), window._hGet('_appLog'), window._hGet('_nightIdleStatus')]);
       State.devices = Array.isArray(res[0]) ? res[0] : [];
       State.automations = Array.isArray(res[1]) ? res[1] : [];
       var parse = function(raw, fallback) { return raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : fallback; };
@@ -1037,6 +1066,7 @@ var App = {
       State.holdStatus = parse(res[3], {});
       State.overrides = parse(res[4], {});
       State.logs = parse(res[5], []);
+      State.nightIdle = parse(res[6], {});
       State.loaded = true;
       AutoList.render();
       DevTab.render();
@@ -1054,11 +1084,12 @@ var App = {
     if (App._syncing) return;
     App._syncing = true;
     try {
-      var values = await Promise.all([window._hGet('_holdStatus'), window._hGet('_overrides'), window._hGet('_appLog')]);
+      var values = await Promise.all([window._hGet('_holdStatus'), window._hGet('_overrides'), window._hGet('_appLog'), window._hGet('_nightIdleStatus')]);
       var parse = function(raw, fallback) { return raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : fallback; };
       State.holdStatus = parse(values[0], {});
       State.overrides = parse(values[1], {});
       State.logs = parse(values[2], []);
+      State.nightIdle = parse(values[3], {});
       State.syncError = false;
       Overview.renderEvents();
     } catch(e) { State.syncError = true; }
@@ -1172,8 +1203,18 @@ var Countdown = {
       var secs  = Math.round((endsAt - now) / 1000);
       var mins  = Math.floor(secs / 60);
       var s     = secs % 60;
-      el.textContent = i18n('cd_off_in') + (mins > 0 ? mins + ':' + String(s).padStart(2,'0') : s + 's');
+      var hasNight = State.automations.some(function(a) { return (a._groupId || a.id) === gid && a._nightIdle; });
+      el.textContent = i18n(hasNight ? 'night_idle_hold' : 'cd_off_in') + (mins > 0 ? mins + ':' + String(s).padStart(2,'0') : s + 's');
       el.style.display = '';
+    });
+
+    document.querySelectorAll('[data-night-gid]').forEach(function(element) {
+      var state = State.nightIdle[element.getAttribute('data-night-gid')];
+      if (!state || state.phase !== 'idle') { element.style.display = 'none'; return; }
+      var key = state.endsAt ? 'night_idle_status' : 'night_idle_status_until_sunrise';
+      element.textContent = i18n(key).replace('{0}', Math.round(state.brightness * 100))
+        .replace('{1}', Math.max(0, Math.ceil((state.endsAt - now) / 60000)));
+      element.style.display = '';
     });
 
     document.querySelectorAll('[data-ov-gid]').forEach(function(el) {
@@ -1227,6 +1268,7 @@ var AutoList = {
             '<div class="card-sub">' + esc(groupSummary(g)) + '</div>' +
             '<div data-cd-gid="' + esc(g.id) + '" style="display:none;font-size:12px;color:#ff9500;font-weight:600;margin-top:3px"></div>' +
             '<div data-ov-gid="' + esc(g.id) + '" style="display:none;font-size:12px;color:#af52de;font-weight:600;margin-top:2px"></div>' +
+            '<div data-night-gid="' + esc(g.id) + '" class="hint" style="display:none"></div>' +
           '</div>' +
           '<span class="card-chevron">›</span>' +
           '<button class="hy-nostyle ico" onclick="event.stopPropagation();AutoList.dupGroup(' + gi + ')" title="Duplicate">⧉</button>' +
@@ -1518,12 +1560,13 @@ var TModal = {
       setTimeout(function(){
         if (sensor && el('t-sensor')) el('t-sensor').value = sensor;
         if (el('t-bright'))   { el('t-bright').value = bright; if(el('t-bval')) el('t-bval').textContent = bright+'%'; }
-        if (el('t-fadein'))   { el('t-fadein').value = fadeIn0; if(el('t-fadein-val')) el('t-fadein-val').textContent = fadeIn0===0?'instant':fadeIn0+'s'; }
+        if (el('t-fadein'))   { el('t-fadein').value = fadeIn0; if(el('t-fadein-val')) el('t-fadein-val').textContent = window._siF(fadeIn0); }
         if (el('t-turnoff'))  el('t-turnoff').checked = hasOff;
-        if (el('t-hold'))     { el('t-hold').value = hold0; if(el('t-holdval')) el('t-holdval').textContent = hold0===0?'off immediately':hold0+' min'; }
+        if (el('t-hold'))     { el('t-hold').value = hold0; if(el('t-holdval')) el('t-holdval').textContent = hold0===0?i18n('slider_instant'):hold0+' min'; }
         if (el('t-hold-wrap'))    el('t-hold-wrap').style.display = hasOff ? '' : 'none';
-        if (el('t-fadeout'))  { el('t-fadeout').value = fadeOut0; if(el('t-fadeout-val')) el('t-fadeout-val').textContent = fadeOut0===0?'instant':fadeOut0+'s'; }
+        if (el('t-fadeout'))  { el('t-fadeout').value = fadeOut0; if(el('t-fadeout-val')) el('t-fadeout-val').textContent = window._siF(fadeOut0); }
         if (el('t-fadeout-wrap')) el('t-fadeout-wrap').style.display = hasOff ? '' : 'none';
+        TModal._fillNightIdle(offItem0 && offItem0.a._nightIdle);
         if (el('t-lux-en') && luxCond && luxCond.deviceId) {
           el('t-lux-en').checked = true; el('t-lux-wrap').style.display = '';
           if(el('t-lux-sensor')) el('t-lux-sensor').value = luxCond.deviceId;
@@ -2455,6 +2498,47 @@ var TModal = {
   },
 
   // ── Motion → Lights form ──
+  _motionIdleVisibility: function() {
+    var enabled = el('t-turnoff') && el('t-turnoff').checked;
+    ['t-hold-wrap', 't-fadeout-wrap', 't-night-section'].forEach(function(id) {
+      if (el(id)) el(id).style.display = enabled ? '' : 'none';
+    });
+    if (el('t-night-controls')) el('t-night-controls').style.display = enabled && el('t-night-idle').checked ? '' : 'none';
+    if (el('t-night-off-wrap')) el('t-night-off-wrap').style.display = el('t-night-off').checked ? '' : 'none';
+  },
+
+  _fillNightIdle: function(config) {
+    el('t-night-idle').checked = !!config;
+    var percent = config ? Math.round(config.brightness * 100) : 1;
+    el('t-night-bright').value = percent;
+    el('t-night-bval').textContent = percent + '%';
+    el('t-night-off').checked = !!(config && config.offAfterMinutes > 0);
+    el('t-night-hours').value = config && config.offAfterMinutes > 0 ? config.offAfterMinutes / 60 : 3;
+    TModal._motionIdleVisibility();
+  },
+
+  _readNightIdle: function() {
+    if (!el('t-turnoff').checked || !el('t-night-idle').checked) return null;
+    var percent = Number(el('t-night-bright').value);
+    var hours = Number(el('t-night-hours').value);
+    if (!Number.isFinite(percent) || percent < 1 || percent > 100) throw new Error(i18n('night_idle_error_level'));
+    if (el('t-night-off').checked && (!Number.isFinite(hours) || hours < .25 || hours > 24)) throw new Error(i18n('night_idle_error_hours'));
+    return { brightness: percent / 100, offAfterMinutes: el('t-night-off').checked ? Math.round(hours * 60) : 0 };
+  },
+
+  _nightIdleForm: function() {
+    return '<div class="night-idle-options" id="t-night-section">' +
+      '<div class="check-row"><input class="hy-nostyle" type="checkbox" id="t-night-idle" onchange="TModal._motionIdleVisibility()"><label class="hy-nostyle" for="t-night-idle">' + i18n('night_idle_enable') + '</label></div>' +
+      '<div id="t-night-controls" style="display:none">' +
+        '<div class="fgrp"><label class="hy-nostyle flabel" for="t-night-bright">' + i18n('night_idle_level') + '</label>' +
+          '<div class="slider-row"><input class="hy-nostyle" type="range" id="t-night-bright" min="1" max="100" value="1" oninput="el(\'t-night-bval\').textContent=this.value+\'%\'"><span class="slider-val" id="t-night-bval">1%</span></div></div>' +
+        '<div class="check-row"><input class="hy-nostyle" type="checkbox" id="t-night-off" onchange="TModal._motionIdleVisibility()"><label class="hy-nostyle" for="t-night-off">' + i18n('night_idle_later_off') + '</label></div>' +
+        '<div class="fgrp" id="t-night-off-wrap" style="display:none"><label class="hy-nostyle flabel" for="t-night-hours">' + i18n('night_idle_hours') + '</label>' +
+          '<input class="hy-nostyle finput" type="number" id="t-night-hours" min="0.25" max="24" step="0.25" value="3" inputmode="decimal"></div>' +
+        '<p class="hint">' + i18n('night_idle_hint') + '</p>' +
+      '</div></div>';
+  },
+
   _formMotion: function() {
     var sensors = State.devices.filter(function(d) { return d.capabilities && d.capabilities.indexOf('alarm_motion') !== -1; });
     var sensorOpts = sensors.map(function(d) { return '<option value="' + esc(d.id) + '">' + esc(d.name) + (d.zone ? ' ('+esc(d.zone)+')' : '') + '</option>'; }).join('');
@@ -2473,11 +2557,12 @@ var TModal = {
       '<div class="fgrp"><label class="hy-nostyle flabel">Fade in (0 = instant)</label>' +
         '<div class="slider-row"><input class="hy-nostyle" type="range" id="t-fadein" min="0" max="10" value="0" oninput="el(\'t-fadein-val\').textContent=this.value==\'0\'?\'instant\':this.value+\'s\'"><span class="slider-val" id="t-fadein-val">instant</span></div></div>' +
       '<hr class="hy-nostyle sep">' +
-      '<div class="check-row"><input class="hy-nostyle" type="checkbox" id="t-turnoff" checked onchange="el(\'t-hold-wrap\').style.display=this.checked?\'\':\'none\';el(\'t-fadeout-wrap\').style.display=this.checked?\'\':\'none\'"><label class="hy-nostyle" for="t-turnoff">Turn lights off when motion stops</label></div>' +
+      '<div class="check-row"><input class="hy-nostyle" type="checkbox" id="t-turnoff" checked onchange="TModal._motionIdleVisibility()"><label class="hy-nostyle" for="t-turnoff">Change lights when motion stops</label></div>' +
       '<div class="fgrp" id="t-hold-wrap"><label class="hy-nostyle flabel">Keep lights on for (after motion stops)</label>' +
-        '<div class="slider-row"><input class="hy-nostyle" type="range" id="t-hold" min="0" max="60" value="5" oninput="el(\'t-holdval\').textContent=this.value==\'0\'?\'off immediately\':this.value+\' min\'"><span class="slider-val" id="t-holdval">5 min</span></div></div>' +
+        '<div class="slider-row"><input class="hy-nostyle" type="range" id="t-hold" min="0" max="180" value="5" oninput="el(\'t-holdval\').textContent=this.value==\'0\'?\'off immediately\':this.value+\' min\'"><span class="slider-val" id="t-holdval">5 min</span></div></div>' +
       '<div class="fgrp" id="t-fadeout-wrap"><label class="hy-nostyle flabel">Fade out (0 = instant)</label>' +
         '<div class="slider-row"><input class="hy-nostyle" type="range" id="t-fadeout" min="0" max="10" value="0" oninput="el(\'t-fadeout-val\').textContent=this.value==\'0\'?\'instant\':this.value+\'s\'"><span class="slider-val" id="t-fadeout-val">instant</span></div></div>' +
+      TModal._nightIdleForm() +
       '<hr class="hy-nostyle sep">' +
       '<div class="check-row"><input class="hy-nostyle" type="checkbox" id="t-lux-en" onchange="el(\'t-lux-wrap\').style.display=this.checked?\'\':\'none\'"><label class="hy-nostyle" for="t-lux-en">Only trigger if lux is below threshold</label></div>' +
       '<div id="t-lux-wrap" style="display:none">' +
@@ -2715,6 +2800,7 @@ var TModal = {
     if (luxEn && luxSensorId) onConditions.push({ type: 'lux_below', deviceId: luxSensorId, maxLux: luxMax });
     var gid = TModal._editingGroup ? TModal._editingGroup.id : TModal._mkId();
     var list = [];
+    var nightIdle = TModal._readNightIdle();
 
     // Turn on all lights first, then apply per-light dim (fallback to global bright)
     var onActs = lights.map(function(id) { return { type: 'turn_on', deviceId: id }; });
@@ -2722,7 +2808,7 @@ var TModal = {
       var dimVal = (TModal._lightDims[id] && TModal._lightDims[id].on != null) ? TModal._lightDims[id].on : bright;
       if (fadeIn > 0) {
         onActs.push({ type: 'fade_to', deviceId: id, value: dimVal, duration: fadeIn });
-      } else if (dimVal < 1) {
+      } else if (dimVal < 1 || nightIdle) {
         onActs.push({ type: 'set_dim', deviceId: id, value: dimVal });
       }
       if (TModal._lightDims[id] && TModal._lightDims[id].ct != null) {
@@ -2746,10 +2832,12 @@ var TModal = {
       var offActs = lights.map(function(id) {
         return fadeOut > 0 ? { type: 'fade_off', deviceId: id, duration: fadeOut } : { type: 'turn_off', deviceId: id };
       });
-      list.push({ id: TModal._mkId(), name: name + ' — OFF', enabled: true,
+      var offAuto = { id: TModal._mkId(), name: name + ' — OFF', enabled: true,
         _groupId: gid, _groupName: name, _templateType: 'motion_lights',
         _holdMinutes: hold,
-        trigger: { type: 'motion_stop', deviceId: sensor }, conditions: [], actions: offActs });
+        trigger: { type: 'motion_stop', deviceId: sensor }, conditions: [], actions: offActs };
+      if (nightIdle) offAuto._nightIdle = nightIdle;
+      list.push(offAuto);
     }
     return list;
   },

@@ -5,11 +5,12 @@
   "description": "Light Guard - room-based automations for lights and devices",
   "main": "app.js",
   "scripts": {
-    "test": "node --test test/overview.test.js",
+    "test": "node --test test/overview.test.js test/night-idle.test.js test/motion-form.test.js",
     "preview": "node scripts/preview.js"
   },
   "dependencies": {
-    "homey-api": "^3.20.0"
+    "homey-api": "^3.20.0",
+    "suncalc": "2.0.2"
   },
   "devDependencies": {
     "homey": "^4.5.3"

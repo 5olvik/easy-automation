@@ -164,6 +164,8 @@ h2, h3 { line-height: 1.3; }
 .modal-tab { min-height: 42px; white-space: nowrap; padding: 7px 8px; }
 #tmpl-inner-tabs { border-color: var(--ea-border) !important; align-items: center; flex-wrap: nowrap; overflow-y: hidden !important; }
 .scene-lights-heading { flex-wrap: wrap; gap: 8px; }
+.night-idle-options { margin: 14px 0; padding: 14px; border: 1px solid var(--border-color); background: var(--bg-surface); border-radius: 12px; }
+.night-idle-options .check-row { margin-bottom: 10px; }
 .modal-ftr { align-items: center; flex-wrap: wrap; gap: 10px; }
 @media (max-width: 560px) {
   #app { padding: 10px 9px 65px; }
