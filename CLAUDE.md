@@ -1,7 +1,7 @@
-# Easy Automation — Project Rules
+# Light Guard — Project Rules
 
 ## Working folder
-Always work in `C:\Github\Easy Automation`.
+Always work from the checked-out repository root.
 
 ---
 

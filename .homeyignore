@@ -5,3 +5,7 @@ node_modules/
 CLAUDE.md
 *.code-workspace
 *.bak-before-ui-redesign
+
+scripts/
+test/
+artifacts/

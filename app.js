@@ -9,7 +9,7 @@ class EasyAutomationApp extends App {
 
   async onInit() {
     const manifest = this.homey.manifest;
-    this.log(`Easy Automation v${manifest.version} starting...`);
+    this.log(`Light Guard v${manifest.version} starting...`);
 
     this._log            = [];
     this._logSaveTimer   = null;
@@ -135,7 +135,7 @@ class EasyAutomationApp extends App {
     // Serialize initial setup with any settings changes that arrive during startup.
     await this._queueListenerRefresh('startup');
 
-    this.log('Easy Automation ready');
+    this.log('Light Guard ready');
   }
 
   async onUninit() {

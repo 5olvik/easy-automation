@@ -7,8 +7,8 @@
     "local"
   ],
   "name": {
-    "en": "Easy Automation",
-    "no": "Easy Automation"
+    "en": "Light Guard",
+    "no": "Light Guard"
   },
   "description": {
     "en": "Automate any room without writing a single Flow.",
@@ -42,7 +42,7 @@
     "large": "/assets/images/large.jpg",
     "xlarge": "/assets/images/xlarge.jpg"
   },
-  "brandColor": "#1565C0",
+  "brandColor": "#e8441a",
   "permissions": [
     "homey:manager:api"
   ],
@@ -51,8 +51,8 @@
     "email": "fca@finnlyden.no"
   },
   "support": "mailto:fca@finnlyden.no",
-  "homepage": "https://github.com/Finn-Cato/easy-automation",
-  "source": "https://github.com/Finn-Cato/easy-automation",
+  "homepage": "https://github.com/5olvik/easy-automation",
+  "source": "https://github.com/5olvik/easy-automation",
   "api": {
     "getDevices": {
       "method": "GET",

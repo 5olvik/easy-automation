@@ -2,8 +2,12 @@
   "name": "no.easy.automation",
   "version": "1.0.0",
   "private": true,
-  "description": "Easy Automation - room-based automations for lights and devices",
+  "description": "Light Guard - room-based automations for lights and devices",
   "main": "app.js",
+  "scripts": {
+    "test": "node --test test/overview.test.js",
+    "preview": "node scripts/preview.js"
+  },
   "dependencies": {
     "homey-api": "^3.20.0"
   },
