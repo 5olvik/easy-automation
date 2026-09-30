@@ -1,4 +1,28 @@
 {
+  "0.1.14": {
+    "en": "Light Group selection now includes all light and switch devices, filters out heaters and unrelated on/off devices, and removes the pinned-device scope option. Non-dimmable switches are saved as on/off actions.",
+    "no": "Lysgruppevelgeren viser alle lys og brytere, filtrerer bort varmere og andre irrelevante av/på-enheter, og fjerner valget for markerte enheter. Brytere uten dimming lagres som av/på-handlinger."
+  },
+  "0.1.13": {
+    "en": "Light Group selection now shows all lights and on/off switches, filters out unrelated device types, and no longer offers a pinned-device scope toggle. Non-dimmable switches are handled as on/off controls.",
+    "no": "Lysgruppevelgeren viser nå alle lys og av/på-brytere, filtrerer bort andre enhetstyper og har ikke lenger valg for markerte enheter. Brytere uten dimming behandles som av/på-kontroller."
+  },
+  "0.1.12": {
+    "en": "Light Groups now show all compatible lights by default, regardless of the pinned device selection.",
+    "no": "Lysgrupper viser nå alle kompatible lys som standard, uavhengig av hvilke enheter som er markert."
+  },
+  "0.1.11": {
+    "en": "Made it clearer how to select multiple lights in a Light Group and added an option to show compatible devices outside the pinned device selection.",
+    "no": "Gjorde det tydeligere hvordan flere lys velges i en lysgruppe, og la til et valg for å vise kompatible enheter utenfor det markerte enhetsutvalget."
+  },
+  "0.1.10": {
+    "en": "Fixed the Light Group dialog overflowing horizontally and improved its scrolling and layout on smaller screens.",
+    "no": "Rettet at Lysgruppe-dialogen gikk utenfor skjermen, og forbedret rulling og oppsett på mindre skjermer."
+  },
+  "0.1.9": {
+    "en": "Reduced memory use by sharing the Homey API client, trimming cached device data, and deduplicating socket listeners. Serialized listener refreshes and fixed repeated room timeout timers.",
+    "no": "Reduserte minnebruk ved å dele Homey API-klient, begrense bufrede enhetsdata og samle socket-lyttere. Køet lytteroppdateringer og rettet gjentatte timere for romtidsavbrudd."
+  },
   "0.1.1": {
     "en": "Initial release of Easy Automation. More updates coming soon.",
     "no": "Første versjon av Easy Automation. Flere oppdateringer kommer snart."

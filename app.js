@@ -14,6 +14,10 @@ class EasyAutomationApp extends App {
     this._log            = [];
     this._logSaveTimer   = null;
     this._capInstances   = [];     // CapabilityInstance objects — keep refs so GC doesn't destroy subscriptions
+    this._rawListeners   = [];     // Raw HomeyAPI socket listeners must be removed on re-attach
+    this._connectedItems = new Set();
+    this._listenerRefreshPromise = Promise.resolve();
+    this._disconnectPromise = Promise.resolve();
     this._holdTimers     = new Map();
     this._safetyTimers   = new Map();
     this._overrideTimers = new Map();
@@ -31,10 +35,7 @@ class EasyAutomationApp extends App {
     this.homey.settings.on('set', key => {
       if (key === 'automations') {
         this._addLog('info', 'Automations updated — re-attaching listeners');
-        this._detachAllListeners();
-        this._attachAllListeners().catch(e =>
-          this._addLog('error', 'Re-attach after settings change: ' + e.message)
-        );
+        this._queueListenerRefresh('settings change');
       }
       if (key === '_refreshDevices') {
         this._addLog('info', 'Device refresh requested from settings page');
@@ -131,18 +132,20 @@ class EasyAutomationApp extends App {
       await this._cancelOverride(groupId);
     });
 
-    // Never let listener setup crash the app startup
-    try {
-      await this._attachAllListeners();
-    } catch (e) {
-      this.error('_attachAllListeners failed (non-fatal):', e.message);
-    }
+    // Serialize initial setup with any settings changes that arrive during startup.
+    await this._queueListenerRefresh('startup');
 
     this.log('Easy Automation ready');
   }
 
   async onUninit() {
+    await this._listenerRefreshPromise.catch(() => {});
     this._detachAllListeners();
+    await this._disconnectPromise;
+    if (this._api) {
+      try { this._api.destroy(); } catch (e) {}
+    }
+    this._api = null;
   }
 
   //  Shared API helper
@@ -152,6 +155,49 @@ class EasyAutomationApp extends App {
       this._api = await HomeyAPI.createAppAPI({ homey: this.homey });
     }
     return this._api;
+  }
+
+  _resetApi() {
+    const api = this._api;
+    const hadListeners = Boolean(this._listenerApi);
+    if (hadListeners) this._detachAllListeners();
+    this._api = null;
+    this._listenerApi = null;
+    this._liveDevices = null;
+    if (api) {
+      try { api.destroy(); } catch (e) {}
+    }
+    if (hadListeners) this._queueListenerRefresh('API reset');
+  }
+
+  _queueListenerRefresh(reason) {
+    this._listenerRefreshPromise = this._listenerRefreshPromise
+      .catch(() => {})
+      .then(async () => {
+        this._detachAllListeners();
+        await this._disconnectPromise;
+        await this._attachAllListeners();
+      })
+      .catch(e => this._addLog('error', `Listener refresh (${reason}): ${e.message}`));
+    return this._listenerRefreshPromise;
+  }
+
+  _addRawListener(emitter, eventName, handler) {
+    const existing = this._rawListeners.find(listener =>
+      listener.emitter === emitter && listener.eventName === eventName
+    );
+    if (existing) {
+      existing.handlers.add(handler);
+      return;
+    }
+
+    const listener = { emitter, eventName, handlers: new Set([handler]), dispatch: null };
+    listener.dispatch = data => {
+      for (const callback of listener.handlers) callback(data);
+    };
+    emitter.on(eventName, listener.dispatch);
+    this._rawListeners.push(listener);
+    this._connectedItems.add(emitter);
   }
 
   //  Catch-all API handler
@@ -170,10 +216,7 @@ class EasyAutomationApp extends App {
       if (!Array.isArray(automations)) throw new Error('Expected an array');
       this.homey.settings.set('automations', JSON.stringify(automations));
       this._addLog('info', `Saved ${automations.length} automation(s)`);
-      this._detachAllListeners();
-      await this._attachAllListeners().catch(e =>
-        this._addLog('error', 'Re-attach after save: ' + e.message)
-      );
+      await this._listenerRefreshPromise;
       return { ok: true, count: automations.length };
     }
     if (method === 'POST' && p === 'test') {
@@ -202,15 +245,16 @@ class EasyAutomationApp extends App {
         name:            d.name,
         zone:            (zones[d.zone] && zones[d.zone].name) || d.zone || '',
         capabilities:    d.capabilities     || [],
-        capabilitiesObj: d.capabilitiesObj  || {},
         class:           d.class,
+        virtualClass:    d.virtualClass || null,
         driverUri:       d.driverUri || '',
         available:       d.available,
       }));
       this.homey.settings.set('_deviceCache', JSON.stringify(this._cachedDevices));
+      this.homey.settings.set('_deviceCacheUpdatedAt', Date.now());
       this._addLog('info', `Device cache updated: ${this._cachedDevices.length} device(s)`);
     } catch (e) {
-      this._api = null; // reset so next call retries
+      this._resetApi();
       this._addLog('error', '_refreshDeviceCache: ' + e.message);
     }
   }
@@ -599,17 +643,28 @@ class EasyAutomationApp extends App {
   //  Listener management 
 
   async _attachAllListeners() {
-    const automations = this._getAutomations();
+    const automations = this._getAutomations().filter(automation => automation.enabled);
     if (!automations.length) return;
+
+    const needsDeviceApi = automations.some(automation => {
+      const triggerType = automation.trigger && automation.trigger.type;
+      const hasDeviceTrigger = triggerType && triggerType !== 'time' && triggerType !== 'manual';
+      const hasOverrideDevice = automation._overrideSwitch && automation._overrideSwitch.deviceId;
+      return hasDeviceTrigger || hasOverrideDevice;
+    });
+    if (!needsDeviceApi) {
+      this._scheduleTimeChecks();
+      return;
+    }
 
     // Store on this so Node.js does NOT garbage-collect the API instance.
     // If it gets GC'd the WebSocket closes and capability listeners stop firing.
-    this._listenerApi = await HomeyAPI.createAppAPI({ homey: this.homey });
+    // Share the query API client to avoid a second full device cache in memory.
+    this._listenerApi = await this._getApi();
     const devices     = await this._listenerApi.devices.getDevices();
     this._liveDevices = devices; // cache for use in _runActions
 
     for (const automation of automations) {
-      if (!automation.enabled) continue;
       await this._attachTrigger(automation, devices).catch(e =>
         this._addLog('error', `attach "${automation.name}": ${e.message}`)
       );
@@ -719,7 +774,7 @@ class EasyAutomationApp extends App {
       try { await device.connect(); } catch (e) { /* ignore */ }
 
       // Listen for raw capability events (fires when any capability value changes)
-      device.on('capability', data => {
+      this._addRawListener(device, 'capability', data => {
         const { capabilityId, value } = data || {};
         this._addLog('info', `[switch cap] ${device.name}.${capabilityId} = ${JSON.stringify(value)}`);
         for (const m of mappings) {
@@ -735,7 +790,7 @@ class EasyAutomationApp extends App {
       const knownEvents = ['key_action', 'action', 'button', 'scene', 'remote_key_action',
                            'shortPress', 'longPress', 'trigger', 'pressed', 'button_action'];
       knownEvents.forEach(evName => {
-        device.on(evName, async data => {
+        this._addRawListener(device, evName, async data => {
           this._addLog('info', `[switch evt] ${device.name} → "${evName}" ${JSON.stringify(data)}`);
           for (const m of mappings) {
             if (!m.groupId) continue;
@@ -761,7 +816,7 @@ class EasyAutomationApp extends App {
           await card.connect();
           // Listen for all possible trigger-fired event names
           ['trigger', 'run', 'fire', 'triggered'].forEach(evName => {
-            card.on(evName, data => {
+            this._addRawListener(card, evName, data => {
               this._addLog('info', `[FCT ${evName}] ${fullId}: ${JSON.stringify(data)}`);
               for (const mm of mappings) {
                 if (!mm.groupId) continue;
@@ -773,7 +828,6 @@ class EasyAutomationApp extends App {
               }
             });
           });
-          this._capInstances.push(card); // prevent GC; destroy() on cleanup
           this._addLog('info', `[switch] Subscribed to FlowCardTrigger: ${fullId}`);
         } catch (e) {
           this._addLog('info', `[switch] FlowCardTrigger ${fullId}: ${e.message}`);
@@ -876,6 +930,7 @@ class EasyAutomationApp extends App {
 
     // makeCapabilityInstance creates a live subscription — addListener alone never fires
     const instance = await device.makeCapabilityInstance(cap, handler);
+    this._connectedItems.add(device);
     this._capInstances.push(instance);
     this._addLog('info', `Listening: "${automation.name}" → ${device.name}.${cap}`);
 
@@ -883,7 +938,7 @@ class EasyAutomationApp extends App {
     if (t.type === 'remote_event') {
       const knownEvents = ['key_action', 'action', 'button', 'scene', 'remote_key_action', 'shortPress', 'longPress'];
       knownEvents.forEach(evName => {
-        device.on(evName, data => {
+        this._addRawListener(device, evName, data => {
           this._addLog('info', `[remote_event] ${device.name} → event="${evName}" data=${JSON.stringify(data)}`);
           if (this._triggerMatches(t, data)) {
             this._evaluateAndRun(automation).catch(e =>
@@ -955,6 +1010,7 @@ class EasyAutomationApp extends App {
           if (capL) {
             try {
               const instance = await device.makeCapabilityInstance(capL, handler);
+              this._connectedItems.add(device);
               this._capInstances.push(instance);
               this._addLog('info', `Override switch attached: "${device.name}" → group "${gid}" (${capL})`);
             } catch (e) {
@@ -964,7 +1020,7 @@ class EasyAutomationApp extends App {
           if (m.triggerType === 'socket_event') {
             try { await device.connect(); } catch (e) { /* ignore */ }
             const evName = m.eventName;
-            device.on(evName, async data => {
+            this._addRawListener(device, evName, async data => {
               if (!this._switchMappingMatches(m.eventData || {}, data || {})) return;
               this._addLog('trigger', `Override switch "${device.name}" → "${evName}" → group "${gid}" (${m._role})`);
               if (m._role === 'off') await this._cancelOverride(gid);
@@ -996,6 +1052,7 @@ class EasyAutomationApp extends App {
 
         try {
           const instance = await device.makeCapabilityInstance(cap, handler);
+          this._connectedItems.add(device);
           this._capInstances.push(instance);
           this._addLog('info', `Override switch attached: "${device.name}" → group "${gid}" (${cap})`);
         } catch (e) {
@@ -1037,7 +1094,7 @@ class EasyAutomationApp extends App {
       this._addLog('action', `Override: ${lightIds.length} light(s) → ${Math.round(b * 100)}% for ${durationMinutes}min`);
     } catch (e) {
       this._addLog('error', `Override set lights: ${e.message}`);
-      this._api = null;
+      this._resetApi();
     }
 
     // Store override timestamp so motion triggers are skipped during the period
@@ -1091,6 +1148,7 @@ class EasyAutomationApp extends App {
       if (!device) { done({ error: 'Device not found' }); return; }
 
       try { await device.connect(); } catch (e) { /* ignore */ }
+      this._connectedItems.add(device);
 
       let fired = false;
       const listeners = {};
@@ -1165,6 +1223,14 @@ class EasyAutomationApp extends App {
   }
 
   _scheduleTimeChecks() {
+    const hasTimeTrigger = this._getAutomations().some(automation =>
+      automation.enabled && automation.trigger && automation.trigger.type === 'time'
+    );
+    if (!hasTimeTrigger) {
+      if (this._minuteTimer) this.homey.clearInterval(this._minuteTimer);
+      this._minuteTimer = null;
+      return;
+    }
     if (this._minuteTimer) this.homey.clearInterval(this._minuteTimer);
     this._minuteTimer = this.homey.setInterval(
       () => this._checkTimeTriggers().catch(e =>
@@ -1183,10 +1249,8 @@ class EasyAutomationApp extends App {
         await this._listenerApi.devices.getDevices();
       } catch (e) {
         this._addLog('warn', 'Listener WebSocket dropped — reconnecting subscriptions...');
-        this._detachAllListeners();
-        await this._attachAllListeners().catch(err =>
-          this._addLog('error', 'Reconnect failed: ' + err.message)
-        );
+        this._resetApi();
+        await this._listenerRefreshPromise;
       }
     }, 10 * 60 * 1000); // health-check every 10 minutes
   }
@@ -1223,11 +1287,22 @@ class EasyAutomationApp extends App {
   }
 
   _detachAllListeners() {
+    for (const { emitter, eventName, dispatch } of this._rawListeners) {
+      try { emitter.removeListener(eventName, dispatch); } catch (e) {}
+    }
+    this._rawListeners = [];
+
     // Destroy all capability subscriptions
     for (const instance of this._capInstances) {
       try { instance.destroy(); } catch (e) {}
     }
     this._capInstances = [];
+    const disconnects = [];
+    for (const item of this._connectedItems) {
+      try { disconnects.push(item.disconnect().catch(() => {})); } catch (e) {}
+    }
+    this._disconnectPromise = Promise.all(disconnects);
+    this._connectedItems.clear();
     this._listenerApi  = null;
     this._liveDevices  = null;
 
@@ -1306,7 +1381,7 @@ class EasyAutomationApp extends App {
         const val = capObj && capObj.value;
         return String(val) === String(c.value);
       } catch (e) {
-        this._api = null;
+        this._resetApi();
         this._addLog('warn', `device_is condition failed: ${e.message}`);
         return false;
       }
@@ -1321,7 +1396,7 @@ class EasyAutomationApp extends App {
         const lux = capObj != null ? capObj.value : null;
         return lux != null ? lux <= c.maxLux : true;
       } catch(e) {
-        this._api = null;
+        this._resetApi();
         this._addLog('warn', `lux_below condition failed: ${e.message}`);
         return true;
       }
@@ -1342,7 +1417,7 @@ class EasyAutomationApp extends App {
         this._liveDevices = devices;
       } catch (e) {
         this._addLog('warn', 'getDevices failed, using cache: ' + e.message);
-        this._api = null; // reset so next call retries
+        this._resetApi();
         devices = {};
         this._cachedDevices.forEach(d => { devices[d.id] = d; });
       }

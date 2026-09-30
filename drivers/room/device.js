@@ -77,6 +77,8 @@ class RoomDevice extends Device {
   // ── Private helpers ────────────────────────────────────────────────────────
 
   _startTimer() {
+    // A repeated no-motion event restarts the countdown without leaking the old timer.
+    this._clearTimer();
     const minutes = this.getSetting('motion_timeout') || 5;
     const ms      = minutes * 60 * 1000;
 

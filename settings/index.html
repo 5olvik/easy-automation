@@ -43,6 +43,18 @@
         }
         throw new Error('Timeout waiting for response');
       };
+      window._hWaitForResult = async function(resKey, reqTs, timeoutMs) {
+        var deadline = Date.now() + (timeoutMs || 30000);
+        while (Date.now() < deadline) {
+          var raw = await window._hGet(resKey);
+          if (raw) {
+            var result = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            if (result && result.reqTs === reqTs) return result;
+          }
+          await new Promise(function(resolve) { setTimeout(resolve, 350); });
+        }
+        throw new Error('Homey did not respond in time. Check the Logs tab.');
+      };
       translateDOM();
       App.init();
     }
@@ -166,9 +178,9 @@
     .btn-gray:hover:not(:disabled) { background-color: var(--ea-divider) !important; }
 
     /* Modal overlay */
-    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 50; overflow-y: auto; padding: 14px; }
-    .overlay.on { display: flex; align-items: flex-start; justify-content: center; }
-    .modal { background-color: var(--ea-surface); border: 1px solid var(--ea-border); border-radius: 12px; width: 100%; max-width: 480px; padding: 16px 18px 20px; margin: auto; box-shadow: 0 8px 40px rgba(0,0,0,.6); }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 50; overflow: auto; padding: 14px; }
+    .overlay.on { display: flex; align-items: center; justify-content: center; }
+    .modal { background-color: var(--ea-surface); border: 1px solid var(--ea-border); border-radius: 12px; width: 100%; max-width: 480px; padding: 16px 18px 20px; margin: auto; box-shadow: 0 8px 40px rgba(0,0,0,.6); min-width: 0; overflow-x: clip; }
     .modal-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .modal-hdr h2 { font-size: 15px; font-weight: 700; color: var(--ea-text); }
     .modal-ftr { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--ea-border); }
@@ -217,6 +229,7 @@
     .dp-empty { padding: 12px; text-align: center; color: var(--ea-text); font-size: 12px; }
     .dp-grp { padding: 4px 10px 2px; font-size: 10px; font-weight: 700; color: var(--ea-text); text-transform: uppercase; letter-spacing: .4px; background-color: var(--ea-card); }
     .dp-selall { font-size: 11px; color: var(--ea-accent); cursor: pointer; margin-top: 4px; display: inline-block; }
+    .scene-picker-tools { margin:0 0 6px; color:var(--ea-sub); font-size:11px; line-height:1.35; }
 
     /* Check row */
     .check-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
@@ -270,6 +283,94 @@
     @media (max-width: 480px) {
       .finput { font-size: 16px; }
     }
+
+    /* Refined Homey settings UI */
+    :root {
+      --ea-bg: #f4f7fb;
+      --ea-surface: #fff;
+      --ea-card: #fff;
+      --ea-border: #dfe6ef;
+      --ea-divider: #edf1f6;
+      --ea-text: #172334;
+      --ea-sub: #65748a;
+      --ea-accent: #1565c0;
+      --ea-accent2: #0d4f9b;
+      --ea-input-bg: #f8fafc;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ea-bg: #101722;
+        --ea-surface: #172230;
+        --ea-card: #1b2939;
+        --ea-border: #2d3b4d;
+        --ea-divider: #243244;
+        --ea-text: #edf3fa;
+        --ea-sub: #a8b6c8;
+        --ea-accent: #64a9f5;
+        --ea-accent2: #438ddd;
+        --ea-input-bg: #121d2a;
+      }
+    }
+    .homey-dark-mode {
+      --ea-bg: #101722;
+      --ea-surface: #172230;
+      --ea-card: #1b2939;
+      --ea-border: #2d3b4d;
+      --ea-divider: #243244;
+      --ea-text: #edf3fa;
+      --ea-sub: #a8b6c8;
+      --ea-accent: #64a9f5;
+      --ea-accent2: #438ddd;
+      --ea-input-bg: #121d2a;
+    }
+    body { line-height: 1.45; }
+    .topbar { padding: 14px max(18px, calc((100vw - 1000px) / 2)); }
+    .topbar h1 { font-size: 17px; letter-spacing: -.02em; }
+    .tabs { position: sticky; top: 49px; z-index: 4; gap: 4px; padding: 0 max(12px, calc((100vw - 1000px) / 2)); overflow-x: auto; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { min-height: 44px; padding: 10px 16px; white-space: nowrap; font-size: 13px; color: var(--ea-sub); }
+    .tab.on { color: var(--ea-accent); }
+    .view { max-width: 1000px; padding: 24px 20px 36px; }
+    .sec-hdr { margin-top: 20px; color: var(--ea-sub); font-size: 11px; letter-spacing: .09em; }
+    .templates { gap: 10px; }
+    .tmpl-btn { min-height: 88px; border-radius: 14px; padding: 14px 10px; box-shadow: 0 1px 2px rgba(16,35,58,.04); }
+    .tmpl-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(21,101,192,.12); }
+    .tmpl-icon { font-size: 25px; }
+    .tmpl-name { font-size: 12px; }
+    .auto-list-wrap { border-radius: 14px; box-shadow: 0 3px 12px rgba(16,35,58,.06); }
+    .card { min-height: 70px; gap: 11px; padding: 12px 14px; transition: background-color .15s; }
+    .card:hover { background: color-mix(in srgb, var(--ea-accent) 4%, var(--ea-surface)); }
+    .card-name { font-size: 14px; }
+    .card-sub, .device-card-sub, .log-ts, .dp-zone { color: var(--ea-sub); font-weight: 400; }
+    .card-sub { font-size: 12px; }
+    .ico { min-width: 36px; min-height: 36px; }
+    .btn, .btn-sm, .ov-time-btn { min-height: 38px; }
+    .finput { min-height: 42px; }
+    .dp-wrap { max-height: 240px; }
+    .device-card { min-height: 64px; border-radius: 12px; padding: 10px 12px; }
+    .log-row { padding: 8px 12px; }
+    .log-msg { overflow-wrap: anywhere; }
+    .overlay { background: rgba(7,16,28,.58); backdrop-filter: blur(3px); }
+    .modal { max-height: calc(100vh - 28px); overflow-y: auto; overflow-x: clip; border-radius: 18px; padding: 20px; box-shadow: 0 18px 60px rgba(0,0,0,.24); }
+    .modal-hdr h2 { font-size: 17px; }
+    .modal-ftr { position: sticky; bottom: 0; background: var(--ea-surface); padding: 12px 0 4px; }
+    .close-btn { min-width: 36px; min-height: 36px; }
+    :focus-visible { outline: 3px solid color-mix(in srgb, var(--ea-accent) 55%, transparent); outline-offset: 2px; }
+    button { font-family: inherit; }
+    @media (max-width: 600px) {
+      .topbar { padding: 12px 16px; }
+      .tabs { top: 45px; padding: 0 8px; }
+      .tab { padding: 9px 12px; }
+      .view { padding: 18px 14px 28px; }
+      .card { gap: 8px; padding: 10px; }
+      .card-type-icon { width: 24px; font-size: 20px; }
+      .card-sub { white-space: normal; }
+      .modal { padding: 16px; }
+      .modal-ftr { bottom: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
   </style>
 </head>
 <body>
@@ -280,15 +381,15 @@
   <span id="status-msg"></span>
 </div>
 
-<div class="tabs">
-  <button class="tab on"  id="tab-auto"    onclick="UI.tab('auto')" data-i18n="tab_auto">Automations</button>
-  <button class="tab"     id="tab-devices" onclick="UI.tab('devices')" data-i18n="tab_devices">Devices</button>
-  <button class="tab"     id="tab-logs"    onclick="UI.tab('logs')" data-i18n="tab_logs">Logs</button>
-  <button class="tab"     id="tab-help"    onclick="UI.tab('help')" data-i18n="tab_help">Help</button>
+<div class="tabs" role="tablist" aria-label="Easy Automation sections">
+  <button class="tab on"  id="tab-auto"    role="tab" aria-selected="true" aria-controls="view-auto" onclick="UI.tab('auto')" data-i18n="tab_auto">Automations</button>
+  <button class="tab"     id="tab-devices" role="tab" aria-selected="false" aria-controls="view-devices" onclick="UI.tab('devices')" data-i18n="tab_devices">Devices</button>
+  <button class="tab"     id="tab-logs"    role="tab" aria-selected="false" aria-controls="view-logs" onclick="UI.tab('logs')" data-i18n="tab_logs">Logs</button>
+  <button class="tab"     id="tab-help"    role="tab" aria-selected="false" aria-controls="view-help" onclick="UI.tab('help')" data-i18n="tab_help">Help</button>
 </div>
 
 <!-- Automations -->
-<div class="view on" id="view-auto">
+<div class="view on" id="view-auto" role="tabpanel" aria-labelledby="tab-auto">
   <div class="sec-hdr" data-i18n="sec_add_auto">Add new automation</div>
   <div class="templates">
     <button class="tmpl-btn" onclick="TModal.open('motion_lights')">
@@ -330,7 +431,7 @@
 </div>
 
 <!-- Devices tab -->
-<div class="view" id="view-devices">
+<div class="view" id="view-devices" role="tabpanel" aria-labelledby="tab-devices">
   <div class="row-top">
     <h2 data-i18n="tab_devices">Devices</h2>
     <button class="btn btn-blue" id="btn-refresh-dev" onclick="DevTab.refresh()" data-i18n="btn_refresh">Refresh</button>
@@ -352,7 +453,7 @@
 <!-- Test tab -->
 
 <!-- Logs tab -->
-<div class="view" id="view-logs">
+<div class="view" id="view-logs" role="tabpanel" aria-labelledby="tab-logs">
   <div class="row-top">
     <h2 data-i18n="log_title">Activity Log</h2>
     <div style="display:flex;gap:8px">
@@ -366,7 +467,7 @@
 </div>
 
 <!-- Help tab -->
-<div class="view" id="view-help">
+<div class="view" id="view-help" role="tabpanel" aria-labelledby="tab-help">
   <div style="max-width:600px;margin:0 auto;padding-bottom:40px">
 
     <div style="text-align:center;padding:28px 0 20px">
@@ -568,12 +669,12 @@
 
 <!-- Template / Custom modal -->
 <div class="overlay" id="tmpl-overlay" onclick="TModal.overlayClick(event)">
-  <div class="modal" id="tmpl-modal">
+  <div class="modal" id="tmpl-modal" role="dialog" aria-modal="true" aria-labelledby="tmpl-title">
     <div class="modal-hdr">
       <h2 id="tmpl-title">Add Automation</h2>
       <button class="close-btn" onclick="TModal.close()">✕</button>
     </div>
-    <div id="tmpl-inner-tabs" style="display:none;border-bottom:1px solid #2a2a2a;margin:0 -24px 16px;padding:0 24px">
+    <div id="tmpl-inner-tabs" style="display:none;border-bottom:1px solid var(--ea-border);margin:0 0 16px;padding:0;overflow-x:auto;max-width:100%">
       <button id="tmpl-tab-settings" class="modal-tab on" onclick="TModal._modalTab('settings')" data-i18n="modal_settings">⚙️ Settings</button>
       <button id="tmpl-tab-lights"   class="modal-tab"    onclick="TModal._modalTab('lights')" data-i18n="modal_lights">💡 Lights</button>
       <button id="tmpl-tab-test"     class="modal-tab"    onclick="TModal._modalTab('test')" data-i18n="modal_test">🧪 Test</button>
@@ -581,7 +682,7 @@
     <div id="tmpl-settings-tab">
       <div id="tmpl-body"></div>
     </div>
-    <div id="tmpl-lights-tab" style="display:none;margin:0 -24px;padding:0 24px 4px;max-height:55vh;overflow-y:auto"></div>
+    <div id="tmpl-lights-tab" style="display:none;padding:0 0 4px;max-height:55vh;overflow-y:auto;min-width:0"></div>
     <div id="tmpl-test-tab"   style="display:none;padding:4px 0 8px"></div>
     <div class="modal-ftr" id="tmpl-ftr">
       <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
@@ -599,6 +700,12 @@
 'use strict';
 
 var el = function(id) { return document.getElementById(id); };
+
+document.addEventListener('keydown', function(event) {
+  if (event.key !== 'Escape') return;
+  if (el('tmpl-overlay').classList.contains('on')) TModal.close();
+  else if (el('ov-overlay').classList.contains('on')) OverrideModal.close();
+});
 
 // ── i18n / Localization ────────────────────────────────────────────────────────
 window.EA_LANG = (function() {
@@ -626,6 +733,8 @@ var I18N = {
     dev_all:'All:', dev_clear:'Clear selection',
     err_select_motion:'Please select a motion sensor',
     err_select_lights:'Please select at least one light',
+    scene_picker_help:'Choose the lights or on/off switches for this group.',
+    scene_switch_on:'Turn on', scene_switch_off:'Turn off',
     err_select_door:'Please select a door sensor',
     err_select_time:'Please set a time',
     err_select_zone:'Please select a zone',
@@ -813,6 +922,8 @@ var I18N = {
     dev_all:'Alle:', dev_clear:'Nullstill valg',
     err_select_motion:'Velg en bevegelsessensor',
     err_select_lights:'Velg minst ett lys',
+    scene_picker_help:'Velg lys eller av/på-brytere som skal være med i gruppen.',
+    scene_switch_on:'Slå på', scene_switch_off:'Slå av',
     err_select_door:'Velg en d\u00f8r-/kontaktsensor',
     err_select_time:'Angi et tidspunkt',
     err_select_zone:'Velg en sone',
@@ -1127,6 +1238,7 @@ var UI = {
   tab: function(name) {
     ['auto','devices','logs','help'].forEach(function(t) {
       el('tab-'  + t).classList.toggle('on', t === name);
+      el('tab-'  + t).setAttribute('aria-selected', t === name ? 'true' : 'false');
       el('view-' + t).classList.toggle('on', t === name);
     });
     if (name === 'logs') LogTab.load();
@@ -1386,13 +1498,19 @@ var AutoList = {
 
 // ── Device picker helper ────────────────────────────────────────────────────────
 var Picker = {
-  render: function(containerId, selectedIds, cap) {
+  render: function(containerId, selectedIds, cap, includeUnpinned, sceneOnly) {
     var pinned = State.pinnedDevices;
     var selected = selectedIds || [];
     var list = State.devices.filter(function(d) {
       // Always include already-selected devices so editing never loses pre-checked lights
       if (selected.indexOf(d.id) !== -1) return true;
-      if (pinned.length && pinned.indexOf(d.id) === -1) return false;
+      if (sceneOnly) {
+        var deviceClass = String(d.class || '').toLowerCase();
+        var virtualClass = String(d.virtualClass || '').toLowerCase();
+        if (['light', 'socket', 'switch'].indexOf(deviceClass) === -1) return false;
+        if (['heater', 'thermostat', 'airconditioning', 'evcharger', 'washer', 'appliance'].indexOf(virtualClass || deviceClass) !== -1) return false;
+      }
+      if (!includeUnpinned && pinned.length && pinned.indexOf(d.id) === -1) return false;
       if (cap && !(d.capabilities && d.capabilities.indexOf(cap) !== -1)) return false;
       return true;
     });
@@ -1494,7 +1612,7 @@ var TModal = {
     } else if (type === 'schedule') {
       Picker.render('dp-lights', [], 'onoff');
     } else if (type === 'scene') {
-      Picker.render('dp-lights', [], 'onoff');
+      Picker.render('dp-lights', [], 'onoff', true, true);
       el('dp-lights').addEventListener('change', function() { TModal._renderSceneLightsInline(); });
     } else if (type === 'zone_control') {
       // Zone picker starts empty — lights populated on zone change
@@ -1761,7 +1879,7 @@ var TModal = {
       }).filter(function(v) { return v > 0; });
       var avgScene = dimValsScene.length ? Math.round(dimValsScene.reduce(function(a,b){return a+b;},0)/dimValsScene.length) : 10;
       TModal._prevGlobal.on = avgScene;
-      Picker.render('dp-lights', allLightsScene, 'onoff');
+      Picker.render('dp-lights', allLightsScene, 'onoff', true, true);
       el('dp-lights').addEventListener('change', function() { TModal._renderSceneLightsInline(); });
       TModal._renderSceneLightsInline();
       setTimeout(function() {
@@ -1910,7 +2028,14 @@ var TModal = {
   },
 
   overlayClick: function(e) { if (e.target === el('tmpl-overlay')) TModal.close(); },
-  close: function() { el('tmpl-overlay').classList.remove('on'); TModal._editingGroup = null; },
+  close: function() {
+    el('tmpl-overlay').classList.remove('on');
+    TModal._editingGroup = null;
+    Object.keys(TModal._previewTimers).forEach(function(id) {
+      clearTimeout(TModal._previewTimers[id]);
+      delete TModal._previewTimers[id];
+    });
+  },
 
   _modalTab: function(tab) {
     el('tmpl-settings-tab').style.display = tab === 'settings' ? '' : 'none';
@@ -2048,6 +2173,14 @@ var TModal = {
     TModal._lightDims[deviceId][mode] = pct / 100;
     // Scene: each light is independent — don't sync per-light changes back to global slider
     if (TModal.type !== 'scene') TModal._updateGlobalFromLights(mode);
+  },
+
+  _toggleSceneSwitch: function(deviceId) {
+    if (!TModal._lightDims[deviceId]) TModal._lightDims[deviceId] = {};
+    var current = TModal._lightDims[deviceId].on;
+    var defaultOn = el('t-bright') ? parseInt(el('t-bright').value) / 100 : 1;
+    TModal._lightDims[deviceId].on = current > 0 ? 0 : (defaultOn > 0 ? defaultOn : 1);
+    TModal._renderSceneLightsInline();
   },
 
   _updateGlobalFromLights: function(mode) {
@@ -2191,13 +2324,7 @@ var TModal = {
     var ts = Date.now();
     try {
       await window._hSet('_testRequest', JSON.stringify({ actions: [{ type: 'run_group', groupId: groupId }], name: 'Switch test', ts: ts }));
-      await new Promise(function(r){ setTimeout(r, 2500); });
-      var raw = await window._hGet('_testResult');
-      var res = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : null;
-      if (!res || res.reqTs !== ts) {
-        resEl.innerHTML = '<p style="color:#ff3b30;font-size:13px">⚠️ No response — check Logs tab.</p>';
-        return;
-      }
+      var res = await window._hWaitForResult('_testResult', ts, 120000);
       resEl.innerHTML = res.ok
         ? '<p style="color:#34c759;font-size:13px">✓ Automation ran successfully.</p>'
         : '<p style="color:#ff3b30;font-size:13px">✗ ' + esc(res.error || 'Unknown error') + '</p>' +
@@ -2284,13 +2411,7 @@ var TModal = {
     var ts = Date.now();
     try {
       await window._hSet('_testRequest', JSON.stringify({ actions: actions, name: label, ts: ts, blink: true }));
-      await new Promise(function(r) { setTimeout(r, 6000); }); // 5 blinks × 800 ms + restore
-      var raw = await window._hGet('_testResult');
-      var res = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : null;
-      if (!res || res.reqTs !== ts) {
-        resEl.innerHTML = '<p style="color:#ff3b30;font-size:13px">⚠️ No response — check Logs tab.</p>';
-        return;
-      }
+      var res = await window._hWaitForResult('_testResult', ts, 30000);
       // Blink test: single result, show simple summary
       if (res.results && res.results.length === 1 && res.results[0].action === 'blink_test') {
         var nLights = [...new Set(actions.filter(function(a){return a.deviceId;}).map(function(a){return a.deviceId;}))].length;
@@ -2419,6 +2540,7 @@ var TModal = {
   // ── Light Group / Scene form ──
   _formScene: function() {
     return '<div class="fgrp"><label class="flabel">Lights in this group</label>' +
+        '<div class="scene-picker-tools" id="scene-picker-help">' + i18n('scene_picker_help') + '</div>' +
         '<div class="dp-wrap" id="dp-lights"></div>' +
       '</div>' +
       '<div class="fgrp"><label class="flabel">Default brightness (0% = OFF)</label>' +
@@ -2454,16 +2576,23 @@ var TModal = {
       if (TModal._prevGlobal.on == null) TModal._prevGlobal.on = globalVal;
       var pct = Math.round(TModal._lightDims[id].on * 100);
       var sid = did + '_on', vid = sid + '_v';
+      var dev = State.devices.find(function(d){return d.id===id;});
+      var canDim = !!(dev && dev.capabilities && dev.capabilities.indexOf('dim') !== -1);
       html += '<div class="lt-card">' +
-        '<div class="lt-name">💡 ' + esc(dname) + '</div>' +
-        '<div class="lt-row">' +
+        '<div class="lt-name">' + (dev && dev.class === 'light' ? '💡 ' : '🔘 ') + esc(dname) + '</div>';
+      if (canDim) {
+        html += '<div class="lt-row">' +
           '<span class="lt-label">💡 Level</span>' +
           '<div class="slider-row" style="flex:1;margin-top:0">' +
             '<input type="range" id="' + sid + '" min="0" max="100" value="' + pct + '"' +
               ' oninput="var v=parseInt(this.value);document.getElementById(\'' + vid + '\').textContent=v===0?\'OFF\':v+\'%\';TModal._setLightDim(\'' + id + '\',\'on\',v);TModal._previewLight(\'' + id + '\',v/100)">' +
             '<span class="slider-val" id="' + vid + '">' + (pct === 0 ? 'OFF' : pct + '%') + '</span>' +
           '</div></div>';
-      var dev = State.devices.find(function(d){return d.id===id;});
+      } else {
+        html += '<div class="lt-row"><span class="lt-label">🔘 ON/OFF</span>' +
+          '<button type="button" class="btn-sm" onclick="TModal._toggleSceneSwitch(\'' + id + '\')">' +
+          i18n(pct === 0 ? 'scene_switch_on' : 'scene_switch_off') + '</button></div>';
+      }
       if (hasLightTemp(dev)) {
         var ctVal = TModal._lightDims[id].ct != null ? Math.round(TModal._lightDims[id].ct * 100) : 50;
         var ctId = did + '_ct', ctVid = ctId + '_v';
@@ -2949,13 +3078,15 @@ var TModal = {
     var acts = [];
     lights.forEach(function(id) {
       var dimVal = (TModal._lightDims[id] && TModal._lightDims[id].on != null) ? TModal._lightDims[id].on : defBright;
+      var device = State.devices.find(function(d) { return d.id === id; });
+      var canDim = !!(device && device.capabilities && device.capabilities.indexOf('dim') !== -1);
       if (dimVal <= 0) {
         acts.push({ type: 'turn_off', deviceId: id });
       } else {
         acts.push({ type: 'turn_on', deviceId: id });
-        if (dimVal < 1) acts.push({ type: 'set_dim', deviceId: id, value: dimVal });
+        if (canDim && dimVal < 1) acts.push({ type: 'set_dim', deviceId: id, value: dimVal });
       }
-      if (TModal._lightDims[id] && TModal._lightDims[id].ct != null) {
+      if (canDim && TModal._lightDims[id] && TModal._lightDims[id].ct != null) {
         acts.push({ type: 'set_color_temp', deviceId: id, value: TModal._lightDims[id].ct });
       }
     });
@@ -3707,14 +3838,12 @@ var TestTab = {
     var ts = Date.now();
     try {
       await window._hSet('_testRequest', JSON.stringify({ actions: actions, name: label, ts: ts }));
-      // Wait for backend to process
-      await new Promise(function(r) { setTimeout(r, 2500); });
-      var raw = await window._hGet('_testResult');
-      var res = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : null;
-      if (!res || res.reqTs !== ts) {
-        resultEl.innerHTML = '<p style="color:#ff3b30;font-size:14px">' + i18n('test_no_response') + '</p>';
-        return;
-      }
+      var estimatedMs = actions.reduce(function(total, action) {
+        if (action.type === 'wait') return total + (parseInt(action.seconds, 10) || 1) * 1000;
+        if (action.type === 'fade_off' || action.type === 'fade_to') return total + (parseFloat(action.duration) || 0) * 1000 + 500;
+        return total;
+      }, 0);
+      var res = await window._hWaitForResult('_testResult', ts, Math.min(600000, Math.max(30000, estimatedMs + 20000)));
       // Build per-light final state from the actions list
       var lightStates = {};
       actions.forEach(function(a, idx) {
@@ -3923,8 +4052,15 @@ var DevTab = {
     var btn = el('btn-refresh-dev');
     btn.textContent = i18n('dev_refreshing'); btn.disabled = true;
     try {
+      var previousUpdate = Number(await window._hGet('_deviceCacheUpdatedAt')) || 0;
       await window._hSet('_refreshDevices', Date.now());
-      await new Promise(function(r) { setTimeout(r, 2500); });
+      var deadline = Date.now() + 20000;
+      var updatedAt = previousUpdate;
+      while (Date.now() < deadline && updatedAt <= previousUpdate) {
+        await new Promise(function(resolve) { setTimeout(resolve, 400); });
+        updatedAt = Number(await window._hGet('_deviceCacheUpdatedAt')) || 0;
+      }
+      if (updatedAt <= previousUpdate) throw new Error('Homey did not finish refreshing devices in time.');
       var raw = await window._hGet('_deviceCache');
       State.devices = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
       DevTab.render();
@@ -3976,12 +4112,13 @@ function tpSet(id, val) {
 var LogTab = {
   load: async function() {
     el('log-list').innerHTML = '<div class="loader">' + i18n('log_loading') + '</div>';
+    LogTab._logs = [];
     try {
       var raw = await window._hGet('_appLog');
       var logs = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
       logs = logs.slice().reverse();
-      if (!logs.length) { el('log-list').innerHTML = '<div class="loader">' + i18n('log_empty') + '</div>'; return; }
       LogTab._logs = logs;
+      if (!logs.length) { el('log-list').innerHTML = '<div class="loader">' + i18n('log_empty') + '</div>'; return; }
       el('log-list').innerHTML = logs.map(function(l) {
         var d  = new Date(l.ts);
         var ts = d.toLocaleDateString([],{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
@@ -3991,7 +4128,7 @@ var LogTab = {
           '<span class="log-msg">' + esc(l.message) + '</span>' +
         '</div>';
       }).join('');
-    } catch(e) { el('log-list').innerHTML = '<div class="loader">Error: ' + e.message + '</div>'; }
+    } catch(e) { el('log-list').innerHTML = '<div class="loader">Error: ' + esc(e.message) + '</div>'; }
   },
   copy: async function() {
     if (!LogTab._logs) await LogTab.load();

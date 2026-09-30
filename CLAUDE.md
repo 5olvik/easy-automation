@@ -75,6 +75,11 @@ Use `homey app install` (permanent, keeps settings) — NOT `homey app run` (tem
 - Write clear commit messages describing *why* the change was made.
 - Never bump the version without also updating `.homeychangelog.json`.
 
+## Local Homey Iterations
+- When updating the app on the user's local Homey during development, keep the current version number; do not bump it for every local install.
+- Bump the version and update `.homeychangelog.json` only when preparing a release or when the user explicitly requests a version change.
+- Never publish to the Homey App Store unless the user explicitly asks.
+
 ---
 
 ## General

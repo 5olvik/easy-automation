@@ -5,9 +5,9 @@
   "description": "Easy Automation - room-based automations for lights and devices",
   "main": "app.js",
   "dependencies": {
-    "homey-api": "^3.17.4"
+    "homey-api": "^3.20.0"
   },
   "devDependencies": {
-    "homey": "^4.0.11"
+    "homey": "^4.5.3"
   }
 }
