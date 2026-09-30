@@ -9,14 +9,17 @@ async function main() {
   const expectedHomeyId = targetIndex >= 0 ? process.argv[targetIndex + 1] : null;
   if (!expectedHomeyId || selected?.id !== expectedHomeyId) throw new Error('Pass --homey-id for the selected target Homey');
   const api = await athom.getActiveHomey();
-  const app = await api.apps.getApp({id:'no.easy.automation', $cache:false});
+  const manifest = require('../app.json');
+  const appIndex = process.argv.indexOf('--app-id');
+  const appId = appIndex >= 0 ? process.argv[appIndex + 1] : manifest.id;
+  const app = await api.apps.getApp({id:appId, $cache:false});
   const settings = await api.apps.getAppSettings({id:app.id, $cache:false});
   const parse = (raw, fallback) => raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : fallback;
   const autos = parse(settings.automations, []);
   const pinned = parse(settings._pinnedDevices, []);
   const hash = value => crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
   const devices = await api.devices.getDevices({$cache:false});
-  const paired = Object.values(devices).filter(d => d.driverId?.startsWith('homey:app:no.easy.automation:')).map(d => d.id).sort();
+  const paired = Object.values(devices).filter(d => d.driverId?.startsWith(`homey:app:${appId}:`)).map(d => d.id).sort();
   const result = { homey: selected.name, app: {id:app.id, name:app.name, version:app.version, state:app.state, enabled:app.enabled, crashed:app.crashed},
     automationCount: autos.length, automationHash:hash(autos), pinnedCount:pinned.length, pinnedHash:hash(pinned), pairedDeviceIds:paired, hasToken:!!settings._homeyPAT };
   const folder = path.join(__dirname, '../artifacts');

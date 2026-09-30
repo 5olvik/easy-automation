@@ -1,8 +1,10 @@
 # Opphav og gjenbruk
 
 Light Guard er Solviks fork av Easy Automation fra Finn Cato Andersen:
-https://github.com/Finn-Cato/easy-automation. Appens tekniske ID videreføres som
-`no.easy.automation` slik at eksisterende oppsett og Flows kan beholdes ved oppdatering.
+https://github.com/Finn-Cato/easy-automation. Light Guard publiseres med egen
+teknisk ID, `no.lightguard`. Tidligere lokale utviklingsutgaver brukte originalens
+ID, `no.easy.automation`. Disse er separate apper i Homey; oppsett, enheter og Flows
+flyttes ikke automatisk mellom ID-ene.
 
 Grensesnittet bygger videre på originalens innstillingsside. Den nye filen
 `settings/style.css` tilpasser fargetokens, toppseksjon, kort og navigasjonsmønster

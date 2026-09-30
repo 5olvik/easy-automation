@@ -1,4 +1,8 @@
 {
+  "0.1.15": {
+    "en": "Light Guard test release based on Easy Automation 0.1.14. Added a Guard-style room overview and new app artwork, adjustable night brightness after sunset, and optional delayed switch-off. New motion restores brightness and resets the countdown; night-light deadlines survive app restarts. Uses its own app ID for App Store distribution and Flow creation.",
+    "no": "Testutgivelse av Light Guard basert på Easy Automation 0.1.14. Ny romoversikt i Guard-stil og nye appbilder, justerbar nattlysstyrke etter solnedgang og valgfri forsinket avslåing. Ny bevegelse gjenoppretter lysstyrken og starter nedtellingen på nytt; nattlysfristene beholdes ved omstart. Egen app-ID for App Store og oppretting av Flows."
+  },
   "0.1.14": {
     "en": "Light Group selection now includes all light and switch devices, filters out heaters and unrelated on/off devices, and removes the pinned-device scope option. Non-dimmable switches are saved as on/off actions.",
     "no": "Lysgruppevelgeren viser alle lys og brytere, filtrerer bort varmere og andre irrelevante av/på-enheter, og fjerner valget for markerte enheter. Brytere uten dimming lagres som av/på-handlinger."

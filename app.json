@@ -1,6 +1,6 @@
 {
-  "id": "no.easy.automation",
-  "version": "0.1.14",
+  "id": "no.lightguard",
+  "version": "0.1.15",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -11,8 +11,8 @@
     "no": "Light Guard"
   },
   "description": {
-    "en": "Automate any room without writing a single Flow.",
-    "no": "Automatiser ethvert rom uten å skrive en eneste flyt."
+    "en": "Motion-controlled room lighting with adjustable night lights.",
+    "no": "Bevegelsesstyrt rombelysning med justerbart nattlys."
   },
   "tags": {
     "en": [
@@ -47,12 +47,16 @@
     "homey:manager:api"
   ],
   "author": {
-    "name": "Finn Cato Andersen",
-    "email": "fca@finnlyden.no"
+    "name": "Thomas Solvik"
   },
-  "support": "mailto:fca@finnlyden.no",
-  "homepage": "https://github.com/5olvik/easy-automation",
-  "source": "https://github.com/5olvik/easy-automation",
+  "contributors": {
+    "developers": [
+      { "name": "Finn Cato Andersen" }
+    ]
+  },
+  "support": "https://github.com/5olvik/easy-automation",
+  "homepage": "https://github.com/5olvik/easy-automation/tree/lightsguard",
+  "source": "https://github.com/5olvik/easy-automation/tree/lightsguard",
   "api": {
     "getDevices": {
       "method": "GET",

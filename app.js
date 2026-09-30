@@ -506,14 +506,15 @@ class EasyAutomationApp extends App {
       for (const m of (req.mappings || [])) {
         if (!m.groupId) continue;
         try {
-          const actionId = m._actionType === 'cancel_override'
-            ? 'homey:app:no.easy.automation:cancel_override'
+          const actionName = m._actionType === 'cancel_override'
+            ? 'cancel_override'
             : m._actionType === 'override' || m._isOverride
-              ? 'homey:app:no.easy.automation:override_group'
-              : 'homey:app:no.easy.automation:run_group';
+              ? 'override_group'
+              : 'run_group';
+          const actionId = `homey:app:${this.homey.manifest.id}:${actionName}`;
           // m.triggerId is already the fully-qualified combined ID e.g. "homey:device:{id}:sr_on_button_mode_g4"
           const flow = await api.flow.createFlow({ flow: {
-            name:    `[Easy Auto] ${m.groupName} ← ${m.triggerTitle}`,
+            name:    `[Light Guard] ${m.groupName} ← ${m.triggerTitle}`,
             enabled: true,
             trigger: { id: m.triggerId, args: m.triggerArgs || {} },
             conditions: [],
