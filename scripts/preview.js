@@ -19,7 +19,7 @@ const automation = (id, name, template, trigger, actions, enabled = true) => ({
 const fixtures = {
   _appVersion: require('../app.json').version,
   _deviceCache: JSON.stringify(devices), _pinnedDevices: '[]', _holdStatus: '{}',
-  _overrides: JSON.stringify({ kitchen: Date.now() + 45 * 60000 }),
+  _manualLightStatus: JSON.stringify({ hall: { since: Date.now(), endsAt: null } }),
   _deviceCacheUpdatedAt: Date.now(),
   automations: JSON.stringify([
     automation('hall', 'Bevegelseslys', 'motion_lights', { type: 'motion_start', deviceId: 'motion-hall' }, [{ type: 'turn_on', deviceId: 'hall-light' }, { type: 'set_dim', deviceId: 'hall-light', value: .7 }]),
@@ -32,7 +32,7 @@ const fixtures = {
     { ts: Date.now() - 100000, level: 'info', message: 'Light Guard er klar.' },
     { ts: Date.now() - 50000, level: 'trigger', message: 'Bevegelseslys: bevegelse i gangen.' },
     { ts: Date.now() - 45000, level: 'action', message: 'Downlights satt til 70 %.' },
-    { ts: Date.now() - 20000, level: 'info', message: 'Morgenlys er satt på pause i 45 minutter.' }
+    { ts: Date.now() - 20000, level: 'info', message: 'Bevegelseslys: manuell lysstyrke beholdes til rommet er tomt.' }
   ])
 };
 const cssRoot = process.env.LIGHT_GUARD_HOMEY_CSS || path.resolve(root, '../Home Guard/artifacts/homey-webview/css');
@@ -47,7 +47,7 @@ const server = http.createServer((req, res) => {
         const query = new URLSearchParams(location.search);
         Object.defineProperty(navigator, 'language', { value: query.get('lang') === 'en' ? 'en-US' : 'nb-NO', configurable: true });
         const values = ${JSON.stringify(fixtures)};
-        if (query.has('empty')) { values.automations = '[]'; values._appLog = '[]'; values._overrides = '{}'; }
+        if (query.has('empty')) { values.automations = '[]'; values._appLog = '[]'; values._manualLightStatus = '{}'; }
         const homey = {
           ready() {},
           get(key, callback) { setTimeout(() => callback(query.has('error') && key !== '_homeyPAT' ? 'Homey is offline' : null, values[key] || null), 10); },

@@ -5,7 +5,7 @@
   "description": "Light Guard - room-based automations for lights and devices",
   "main": "app.js",
   "scripts": {
-    "test": "node --test test/overview.test.js test/night-idle.test.js test/motion-form.test.js",
+    "test": "node --test test/overview.test.js test/night-idle.test.js test/motion-form.test.js test/manual-lights.test.js",
     "preview": "node scripts/preview.js"
   },
   "dependencies": {

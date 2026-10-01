@@ -34,6 +34,7 @@ test('saved night settings reopen accurately, and opting out retains the old mot
   fields['t-night-idle'].checked=false;
   assert.equal(c.TModal._saveMotion().some(a=>Object.hasOwn(a,'_nightIdle')),false);
   fields['t-turnoff'].checked=false; assert.equal(c.TModal._saveMotion().length,1);
+  assert.equal(c.TModal._saveMotion()[0]._manualHoldMinutes,5,'manual inactivity stays configured without normal automatic OFF');
 });
 
 test('invalid percentage and long-delay inputs give Norwegian errors',()=>{

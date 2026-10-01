@@ -35,7 +35,7 @@ function setup({ hold = 5, delay = 180, brightness = .01 } = {}) {
   const sun = { isNight:true, nextSunrise:clock.now + 12 * 60 * MINUTE };
   const homey = { settings: { get:key=>settings.get(key), set:(key,value)=>settings.set(key,value) },
     setTimeout:(callback,delay)=>clock.set(callback,delay), clearTimeout:id=>clock.timers.delete(id) };
-  const options = { homey, now:()=>clock.now, getAutomations:()=>automations, getOverrides:()=>overrides,
+  const options = { homey, now:()=>clock.now, getAutomations:()=>automations, isManual:gid=>!!overrides[gid],
     getDevices:async()=>devices, getSunWindow:async()=>sun, setHold() {}, clearHold() {}, log:(...args)=>logs.push(args),
     runActions:async(actions,name,guard)=>{
       if (!guard()) return [];

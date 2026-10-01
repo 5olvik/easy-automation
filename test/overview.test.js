@@ -6,14 +6,14 @@ const path = require('node:path');
 const vm = require('node:vm');
 const html = fs.readFileSync(path.join(__dirname, '../settings/index.html'), 'utf8');
 const mainScript = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].at(-1)[1];
-function load(automations, devices = [], overrides = {}) {
+function load(automations, devices = [], manualLights = {}) {
   const context = vm.createContext({ navigator: { language: 'en' }, window: {}, document: { addEventListener() {} }, console });
   context.window = context;
   vm.runInContext(mainScript, context);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../settings/overview.js'), 'utf8'), context);
   context.State.automations = automations;
   context.State.devices = devices;
-  context.State.overrides = overrides;
+  context.State.manualLights = manualLights;
   return context;
 }
 const light = { id: 'light', zone: 'Stue' };
@@ -27,9 +27,10 @@ test('legacy on/off pairs count as one automation and open the original group', 
   c.AutoList.editGroup = index => assert.equal(index, 0);
   c.Overview.open('g-0');
 });
-test('disabled, partial and expired pauses stay distinct from active pauses', () => {
-  const c = load([part('on'), part('off')], [light], { motion: 2000 });
-  assert.equal(c.Overview.model(1000).counts.paused, 1);
+test('manual light control keeps automations active; disabled and partial remain distinct', () => {
+  const c = load([part('on'), part('off')], [light], { motion: { since: 1000, endsAt: 2000 } });
+  assert.equal(c.Overview.model(1000).counts.active, 1);
+  assert.equal(Object.hasOwn(c.Overview.model(1000).counts, 'paused'), false);
   assert.equal(c.Overview.model(2000).counts.active, 1);
   c.State.automations[0].enabled = false;
   assert.equal(c.Overview.model(1000).counts.partial, 1);
