@@ -1,4 +1,8 @@
 {
+  "1.0.1": {
+    "en": "Manual dimming and switching now keep the chosen light values until the room has been inactive for its configured timeout. Motion still resets that countdown. Lights then switch completely off and normal automation resumes, including with night lighting. Removed the Paused status and timed-pause controls. Updated manual button/Flow handling and preserved manual-control deadlines across restarts.",
+    "no": "Manuell dimming og av/på beholder nå valgte lysinnstillinger til rommet har vært inaktivt i den valgte tiden. Bevegelse nullstiller fortsatt nedtellingen. Deretter slukkes lysene helt og vanlig automatikk gjenopptas, også med nattlys. Fjernet Pauset-status og tidsbestemte pausevalg. Oppdatert manuelle knapper og Flows, og bevart nedtellingen for manuell styring gjennom omstart."
+  },
   "1.0.0": {
     "en": "Updated Light Guard to version 1.0.0 with matching app and package version numbers.",
     "no": "Oppdatert Light Guard til versjon 1.0.0 med samsvarende versjonsnumre i appen og pakkeinformasjonen."
