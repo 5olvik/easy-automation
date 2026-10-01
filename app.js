@@ -11,6 +11,7 @@ class EasyAutomationApp extends App {
 
   async onInit() {
     const manifest = this.homey.manifest;
+    this.homey.settings.set('_appVersion', manifest.version);
     this.log(`Light Guard v${manifest.version} starting...`);
 
     this._log            = [];

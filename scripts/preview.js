@@ -17,6 +17,7 @@ const automation = (id, name, template, trigger, actions, enabled = true) => ({
   id: id + '-on', name, enabled, _groupId: id, _groupName: name, _templateType: template, trigger, conditions: [], actions
 });
 const fixtures = {
+  _appVersion: require('../app.json').version,
   _deviceCache: JSON.stringify(devices), _pinnedDevices: '[]', _holdStatus: '{}',
   _overrides: JSON.stringify({ kitchen: Date.now() + 45 * 60000 }),
   _deviceCacheUpdatedAt: Date.now(),

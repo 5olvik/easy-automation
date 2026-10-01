@@ -48,6 +48,8 @@ Do all of the following automatically — no need to ask the user for confirmati
 - Increment the **patch version by exactly 0.0.1** every time — e.g. 0.1.1 → 0.1.2.
 - Never skip versions. Never bump minor or major unless the user explicitly asks.
 - Update the version in `app.json`.
+- Treat `app.json` as the version source. Set `package.json.version`, `package-lock.json.version` and `package-lock.json.packages[""].version` to the same number. Do not change dependency versions.
+- The settings header reads `_appVersion`, which `onInit` sets from the installed manifest. Never hardcode a release version in the settings HTML or preview fixtures.
 
 ### 2. Changelog
 - Check `git log` since the last published version to find all commits made since the last Homey App Store upload.

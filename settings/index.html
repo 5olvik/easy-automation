@@ -14,6 +14,13 @@
           Homey.get(key, function(err, val) { err ? reject(new Error(String(err))) : resolve(val); });
         });
       };
+      window._hGet('_appVersion').then(function(version) {
+        var label = document.getElementById('app-version');
+        if (label && typeof version === 'string' && version) {
+          label.textContent = 'v' + version;
+          label.hidden = false;
+        }
+      }).catch(function(){});
       window._hSet = function(key, val) {
         return new Promise(function(resolve, reject) {
           Homey.set(key, val, function(err) { err ? reject(new Error(String(err))) : resolve(); });
@@ -69,7 +76,7 @@
 <header class="header-top">
   <div class="header-title"><h1>Light <span>Guard</span></h1><p class="header-subtitle" data-i18n="header_subtitle">Lights and automations, room by room</p></div>
   <div class="header-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M16 30c0-5-5-7-5-14a13 13 0 0 1 26 0c0 7-5 9-5 14M16 30h16v6H16zM19 40h10M24 1V0M5 7 2 4m41 3 3-3M4 21H0m44 0h4"/></svg></div>
-  <span class="app-version">v0.1.14</span>
+  <span class="app-version" id="app-version" hidden></span>
 </header>
 <div id="connection-status" class="connection-banner" role="status" data-i18n="overview_loading">Loading settings from Homey…</div>
 <nav class="tab-bar" aria-label="Main menu" data-i18n-aria="main_menu">
