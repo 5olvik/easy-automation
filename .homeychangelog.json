@@ -1,4 +1,8 @@
 {
+  "0.1.17": {
+    "en": "Simplified the App Store description and replaced the old Room device images with new room artwork and a matching icon.",
+    "no": "Forenklet App Store-beskrivelsen og erstattet de gamle bildene for Rom-enheten med ny romgrafikk og et passende ikon."
+  },
   "0.1.16": {
     "en": "Fixed the settings header to show the installed app version instead of a hardcoded version. Synchronized project and package version metadata.",
     "no": "Rettet versjonsvisningen i innstillingene slik at den hentes fra den installerte appen. Samkjørt versjonsnumrene i appen og pakkeinformasjonen."

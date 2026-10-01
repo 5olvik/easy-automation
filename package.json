@@ -1,6 +1,6 @@
 {
   "name": "no.lightguard",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "private": true,
   "description": "Light Guard - room-based automations for lights and devices",
   "main": "app.js",
