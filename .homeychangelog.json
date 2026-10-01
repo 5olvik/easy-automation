@@ -1,4 +1,8 @@
 {
+  "1.0.0": {
+    "en": "Updated Light Guard to version 1.0.0 with matching app and package version numbers.",
+    "no": "Oppdatert Light Guard til versjon 1.0.0 med samsvarende versjonsnumre i appen og pakkeinformasjonen."
+  },
   "0.1.17": {
     "en": "Simplified the App Store description and replaced the old Room device images with new room artwork and a matching icon.",
     "no": "Forenklet App Store-beskrivelsen og erstattet de gamle bildene for Rom-enheten med ny romgrafikk og et passende ikon."

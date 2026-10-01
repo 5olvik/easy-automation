@@ -1,6 +1,6 @@
 {
   "id": "no.lightguard",
-  "version": "0.1.17",
+  "version": "1.0.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
